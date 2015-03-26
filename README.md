@@ -1,3 +1,104 @@
+###Homework 3 Submission CSC791 DevOps
+
+Unity ID : apatwar
+
+Task1: 
+1) Complete Set/Get
+
+Code Snippet:
+
+```
+app.get('/',function(req,res){
+res.send("Server Port : 8082" )
+})
+
+app.get('/get',function(req,res){
+client.get("msg_key",function(err,value){
+res.send(value);
+})
+
+app.get('/set',function(req,res){
+client.set("msg_key"," This message will self destruct in 10 seconds")
+client.expire("msg_key ",10)
+res.send("Key added successfully")
+})
+```
+
+Task 2) Complete Recent
+
+Code Snippet: Completed Recent(Visited) method
+```
+app.get('/visited',function(req,res){
+client.lrange("visited",0,5,function(err,value){
+res.send(value);
+})
+})
+```
+
+Task 3) Complete Upload/meow
+
+Code Snippet: 
+
+```
+ app.post('/upload',[ multer({ dest: './uploads/'}), function(req, res){
+	console.log(req.body) // form fields
+	console.log(req.files) // form files
+	if( req.files.image )
+	{
+		fs.readFile( req.files.image.path, function (err, data) {
+		if (err) res.send('');
+		var img = new Buffer(data).toString('base64');
+		console.log(img);
+		client.lpush('images',img);
+	});
+	}
+	res.status(204).end()
+}]);
+
+app.get('/meow', function(req, res) {
+	client.lpop('images',function(err,imagedata){
+	if (err) throw err
+	res.writeHead(200, {'content-type':'text/html'});
+	// items.forEach(function (imagedata)
+	// {
+	res.write("<h1>\n<img src='data:my_pic.jpg;base64,"+imagedata+"'/>");
+	// });
+	res.end();
+})
+})
+```
+Task 4) Additional service instance running: 
+
+Functionality present in main.js is replicated in another file main2.js. main.js uses 8082 port while main2.js uses 8083 port. Thus, I have two services running on different ports.
+
+Task 5) Demonstrate proxy:
+
+Code for demonstrating proxy is written in a third file balancer.js. All the requests are initially directed towards proxy server which is running on port 8084. To implement the proxy, I have made use of a variable which stores the id of the server which last serviced the request.  So, If server running on port 8082 was the last server responsible for servicing a request, I would make the variable 8083 so the next request would be serviced by 8083. Thus, instead of servicing the requests itself, the proxy server forwards them to other servers. If we have multiple servers, we could make use of a queue, so the new requests would be serviced by servers in the queue in circular fashion.
+
+Code Snippet:
+
+```
+app.get('/visited',function(req,res){
+client.get('lastserv',function(err,value){
+if(value =='8082')
+{
+lastserver= '8083'
+client.set('lastserv','8083')
+}
+else
+{
+lastserver='8082'
+client.set('lastserv','8082')
+}
+request('http://localhost:'+lastserver+'/visited', function(error,response,body){
+if(!error && response.statusCode==200)
+{
+res.send(body)
+}
+})
+})
+})
+```
 Cache, Proxies, Queues
 =========================
 
