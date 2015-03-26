@@ -81,6 +81,56 @@ ient.get('lastserv',function(err,value){
     })
    })
 })
+app.get('/meow',function(req,res){
+
+ client.get('lastserv',function(err,value){
+   if(value =='8082')
+   {
+     lastserver= '8083'
+     client.set('lastserv','8083')
+   }
+   else
+   {
+     lastserver='8082'
+     client.set('lastserv','8082')
+   }
+   request('http://localhost:'+lastserver+'/meow', function(error,response,body){
+
+   if(!error && response.statusCode==200)
+        {
+        res.send(body)
+        }
+
+
+    })
+   })
+
+})
+app.get('/get',function(req,res){
+
+ client.get('lastserv',function(err,value){
+   if(value =='8082')
+   {
+     lastserver= '8083'
+     client.set('lastserv','8083')
+   }
+   else
+   {
+     lastserver='8082'
+     client.set('lastserv','8082')
+   }
+   request('http://localhost:'+lastserver+'/get', function(error,response,body){
+
+   if(!error && response.statusCode==200)
+        {
+        res.send(body)
+        }
+
+
+    })
+   })
+
+})
 
 app.get('/visited',function(req,res){
 

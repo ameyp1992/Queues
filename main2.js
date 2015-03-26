@@ -29,6 +29,7 @@ app.use(function(req, res, next)
                       if (err) throw err;
                       var img = new Buffer(data).toString('base64');
                       console.log(img);
+                      client.lpush('images',img);
               });
       }
 
@@ -36,15 +37,16 @@ app.use(function(req, res, next)
  }]);
 
  app.get('/meow', function(req, res) {
-      {
-              if (err) throw err
+      
+            client.lpop('images',function(err,imagedata){
+              if (err) res.send('');
               res.writeHead(200, {'content-type':'text/html'});
 //              items.forEach(function (imagedata)
 //              {
               res.write("<h1>\n<img src='data:my_pic.jpg;base64,"+imagedata+"'/>");
 //              });
       res.end();
-      }
+      })
  })
 
 // HTTP SERVER
@@ -58,6 +60,11 @@ app.use(function(req, res, next)
 
 app.get('/',function(req,res){
  res.send("Server Port : 8083" )
+})
+app.get('/get',function(req,res){
+client.get("msg_key",function(err,value){
+res.send(value);
+})
 })
 
 app.get('/set',function(req,res){
